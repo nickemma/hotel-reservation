@@ -14,6 +14,15 @@
 
 [Live Demo Link](https://livedemo.com)
 
+## Project Outline
+
+- Users -> Book room from a hotel
+- Admins -> Check for reservation and bookings
+- Authentication And Authorization -> Using JWT token
+- Hotels -> CRUD API -> JSON
+- Rooms -> CRUD API -> JSON
+- Script -> Database management -> Seeding -> Migration
+
 ## Getting Started
 
 **To get a local copy up and running, follow these simple steps.**
