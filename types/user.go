@@ -16,8 +16,7 @@ const (
 )
 
 var (
-	emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	//passwordPattern = regexp.MustCompile(`^(?:.*[a-z])(?:.*[A-Z])(?:.*\d)[a-zA-Z\d]{8,}$`)
+	emailRegex       = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	lowercaseRegex   = regexp.MustCompile(`[a-z]`)
 	uppercaseRegex   = regexp.MustCompile(`[A-Z]`)
 	numberRegex      = regexp.MustCompile(`\d`)
@@ -36,7 +35,6 @@ func validateEmail(email string) bool {
 }
 
 func validatePassword(password string) bool {
-	//return passwordPattern.MatchString(password)
 	if len(password) < minPasswordLen {
 		return false
 	}
