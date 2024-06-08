@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,6 +23,22 @@ var (
 	numberRegex      = regexp.MustCompile(`\d`)
 	specialCharRegex = regexp.MustCompile(`[@$!%*?&#]`)
 )
+
+type UpdateUserParams struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+func (p UpdateUserParams) ToBSON() bson.M {
+	mapped := bson.M{}
+	if len(p.FirstName) > 0 {
+		mapped["first_name"] = p.FirstName
+	}
+	if len(p.LastName) > 0 {
+		mapped["last_name"] = p.LastName
+	}
+	return mapped
+}
 
 type CreateUserParams struct {
 	FirstName string `json:"first_name"`

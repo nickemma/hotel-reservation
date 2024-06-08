@@ -14,6 +14,7 @@ import (
 )
 
 const mongoUri = "mongodb://localhost:27017"
+const dbname = "hotel-reservation"
 
 var config = fiber.Config{
 	ErrorHandler: func(c *fiber.Ctx, err error) error {
@@ -35,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 	// handlers initializations
-	userHandler := api.NewUserHandler(db.NewMongoUserStore(client))
+	userHandler := api.NewUserHandler(db.NewMongoUserStore(client, dbname))
 
 	// create a new fiber app
 	app := fiber.New(config)
@@ -46,6 +47,8 @@ func main() {
 	apiV1.Post("/create", userHandler.HandleCreateUser)
 	apiV1.Get("/users", userHandler.HandleGetUsers)
 	apiV1.Get("/users/:id", userHandler.HandleGetUserById)
+	apiV1.Delete("/users/:id", userHandler.HandleDeleteUser)
+	apiV1.Put("/users/:id", userHandler.HandleUpdateUser)
 
 	// Listen address
 	app.Listen(*listenAddr)
