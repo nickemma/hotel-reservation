@@ -2,15 +2,12 @@ package db
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nickemma/hotel-reservation/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-const userCollection = "users"
 
 type Dropper interface {
 	// for testing the handlers
@@ -34,12 +31,11 @@ type MongoUserStore struct {
 func NewMongoUserStore(clx *mongo.Client, dbname string) *MongoUserStore {
 	return &MongoUserStore{
 		client:     clx,
-		collection: clx.Database(dbname).Collection(userCollection),
+		collection: clx.Database(dbname).Collection("users"),
 	}
 }
 
 func (s *MongoUserStore) Drop(ctx context.Context) error {
-	fmt.Println("....dropping the database")
 	return s.collection.Drop(ctx)
 }
 
