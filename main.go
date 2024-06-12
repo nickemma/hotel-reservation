@@ -32,20 +32,37 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// handlers initializations
-	userHandler := api.NewUserHandler(db.NewMongoUserStore(client, db.DBNAME))
+	var (
+		// handlers initializations
+		hotelStore = db.NewMongoHotelStore(client)
+		roomStore  = db.NewMongoRoomStore(client, hotelStore)
+		userStore  = db.NewMongoUserStore(client)
+		store      = &db.Store{
+			Room:  roomStore,
+			Hotel: hotelStore,
+			User:  userStore,
+		}
+		userHandler = api.NewUserHandler(userStore)
 
-	// create a new fiber app
-	app := fiber.New(config)
-	// create a new api instance for version 1
-	apiV1 := app.Group("api/v1/")
+		hotelHandler = api.NewHotelHandler(*store)
 
-	// routes for the api
+		// create a new fiber app
+		app = fiber.New(config)
+		// create a new api instance for version 1
+		apiV1 = app.Group("api/v1/")
+	)
+
+	// routes for the api User Handlers
 	apiV1.Post("/create", userHandler.HandleCreateUser)
 	apiV1.Get("/users", userHandler.HandleGetUsers)
 	apiV1.Get("/users/:id", userHandler.HandleGetUserById)
 	apiV1.Delete("/users/:id", userHandler.HandleDeleteUser)
 	apiV1.Put("/users/:id", userHandler.HandleUpdateUser)
+
+	// routes for the api User Handlers
+	apiV1.Get("/hotels", hotelHandler.HandleGetHotel)
+	apiV1.Get("/hotels/:id/rooms", hotelHandler.HandleGetRooms)
+	apiV1.Get("/hotels/:id", hotelHandler.HandleGetHotelById)
 
 	// Listen address
 	app.Listen(*listenAddr)

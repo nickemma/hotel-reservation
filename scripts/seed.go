@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/nickemma/hotel-reservation/db"
@@ -12,25 +11,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func main() {
-	ctx := context.Background()
-	// connection to mongodb
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.MongoUri))
+var (
+	client     *mongo.Client
+	roomStore  db.RoomStore
+	hotelStore db.HotelStore
+	ctx        = context.Background()
+)
 
-	// check if there is an error while connecting to mongodb
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
-		log.Fatal(err)
-	}
-	hotelStore := db.NewMongoHotelStore(client)
-	roomStore := db.NewMongoRoomStore(client, hotelStore)
-
+func seedHotel(name string, location string, rating int) {
 	hotel := types.Hotel{
-		Name:     "Paris",
-		Location: "France",
+		Name:     name,
+		Location: location,
 		Rooms:    []primitive.ObjectID{},
+		Rating:   rating,
 	}
 	insertedHotel, err := hotelStore.CreateHotel(ctx, &hotel)
 
@@ -40,27 +33,45 @@ func main() {
 
 	rooms := []types.Room{
 		{
-			Type:      types.SingleRoomType,
-			BasePrice: 99.9,
+			Size:  "Single Room",
+			Price: 99.9,
 		},
 		{
-			Type:      types.SeaSideRoomType,
-			BasePrice: 499.9,
+			Size:  "Double Room",
+			Price: 499.9,
 		},
 		{
-			Type:      types.DeluxeRoomType,
-			BasePrice: 999.9,
+			Size:  "Deluxe Room",
+			Price: 999.9,
 		},
 	}
 
 	for _, room := range rooms {
 		room.HotelID = insertedHotel.ID
 
-		insertedRoom, err := roomStore.CreateRoom(ctx, &room)
+		_, err := roomStore.CreateRoom(ctx, &room)
 
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("seeding the database", insertedRoom)
 	}
+}
+
+func main() {
+	seedHotel("Paris", "France", 3)
+	seedHotel("The cozy hotel", "The Nederlands", 4)
+	seedHotel("Don't Give up", "Rwanda", 1)
+}
+
+func init() {
+	var err error
+	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(db.MongoUri))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
+		log.Fatal(err)
+	}
+	hotelStore = db.NewMongoHotelStore(client)
+	roomStore = db.NewMongoRoomStore(client, hotelStore)
 }
