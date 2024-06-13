@@ -90,6 +90,11 @@ func (params CreateUserParams) Validate() error {
 	return nil
 }
 
+// ValidatePassword and compare the password with the encrypted password
+func IsPasswordValid(encryptedPw, pw string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(encryptedPw), []byte(pw)) == nil
+}
+
 // User struct to represent a user
 type User struct {
 	ID                primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
